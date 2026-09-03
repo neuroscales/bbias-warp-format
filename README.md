@@ -110,3 +110,89 @@ A RAS coordinate is transformed by an FSL transform via:
   v           v                 v                                              v            v       v          v
  RAS      VOX2RAS(Lin)    Inverse Scale                                   RAS2VOX(Lin)     RAS  RAS2VOX(Tr)  VOX2RAS(Tr)
 ```
+
+### OME-NGFF v0.6
+
+The v0.6 (currently v0.6rc0) of OME-NGFF introduces coordinates spaces and coordinates transformations. It defines
+a large range of transformation types, two of them being qualified as "warps": coordinates fields and displacement fields.
+
+Because OME-NGFF does not commit to a specific organ, it stays clear of any mandatory model space (e.g. RAS vs LPS vs voxels). 
+It is therefore the user's  (or data creator) job to ensure the consistency of its spaces. 
+In general, the common space of two transformations that compose are always exactly identical. 
+This is slightly more complicated for displacement and coordinates field, because the input space is 
+a voxel grid and, especially in the case of displacement fields, can lead to inconsistencies. 
+Cleaning up these inconsistencies has  been one of the main working points during the later stages of the 0.6 development.
+
+When applied in a chain of transformations, i.e., within the `"coordinatesTransformations"` of an OME multiscales dataset, it has the form:
+
+```yaml
+# coordinates
+{
+  "type": "coordinates",
+  "path": "s3://bucket/path/to/coords.ome.zarr",
+  "interpolation": "bspline-cubic"
+},
+# displacements
+{
+  "type": "displacements",
+  "path": "s3://bucket/path/to/disp.ome.zarr",
+  "interpolation": "bspline-cubic"
+}
+```
+
+The coordinates or displacements pointed to by `"path"` are full-fledged multiscales datasets, with metadata:
+
+```yaml
+{
+  "ome": {
+    "version": "0.6rc0",
+    "name": "displacements",
+    "multiscales": [
+      {
+        "coordinateSystems": [
+          {
+            "name": "physical",
+            "axes": [
+              {"name": "c", "type": "displacement", "discrete": true},
+              {"name":"z", "type": "space", "unit": "micrometer"},
+              {"name":"y", "type": "space", "unit": "micrometer"},
+              {"name":"x", "type": "space", "unit": "micrometer"}
+            ]
+          },
+          {
+            "name": "ras+",
+            "axes": [
+              {"name": "c", "type": "displacement", "discrete": true},
+              {"name":"z", "type": "space", "unit": "micrometer"},
+              {"name":"y", "type": "space", "unit": "micrometer"},
+              {"name":"x", "type": "space", "unit": "micrometer"}
+            ]
+          }
+        ],
+        "coordinateTransformations": [
+          {
+            "name": "phys2ras",
+            "input": "physical",
+            "output": "ras+",
+            "type": "affine",
+            "matrix": [ ... ]
+          }
+        ],
+        "datasets": [
+          {
+            "path": "s0",
+            "coordinateTransformations": [
+              {
+                "type": "scale",
+                "scale": [2.0, 2.0],
+                "input" : {"path": "s0"},
+                "output" : {"name": "physical"}
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
