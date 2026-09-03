@@ -104,9 +104,9 @@ FSL always stores displacements (not absolute coordinates), and these displaceme
 A RAS coordinate is transformed by an FSL transform via:
 
 ```text
-[ x ]    [ Axx Axy Axz ]   [ Sx  0  0 ] ^(-1)                          ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )   [ Tx ]
-[ y ] =  [ Ayx Ayy Ayz ] x [  0 Sy  0 ]       x ScaledDisplacementField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] ) + [ Ty ]
-[ z ]    [ Azx Azy Azz ]   [  0  0 Sz ]                                ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )   [ Tz ]
-  v            v                 v                                              v            v       v          v
- RAS       VOX2RAS(Lin)    Inverse Scale                                   RAS2VOX(Lin)     RAS  RAS2VOX(Tr)  VOX2RAS(Tr)
+[ x ]   [ Axx Axy Axz ]   [ Sx  0  0 ] ^(-1)                          ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )   [ Tx ]
+[ y ] = [ Ayx Ayy Ayz ] x [  0 Sy  0 ]       x ScaledDisplacementField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] ) + [ Ty ]
+[ z ]   [ Azx Azy Azz ]   [  0  0 Sz ]                                ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )   [ Tz ]
+  v           v                 v                                              v            v       v          v
+ RAS      VOX2RAS(Lin)    Inverse Scale                                   RAS2VOX(Lin)     RAS  RAS2VOX(Tr)  VOX2RAS(Tr)
 ```
