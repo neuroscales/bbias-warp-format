@@ -52,3 +52,34 @@ codes related to coordinates and displacements fields:
 #define NIFTI_INTENT_VECTOR    1007   /* for any other type of vector */
 ```
 
+[ITK](https://itk.org/) uses these intent codes when storing either displacements (`1006`) or coordinates (`1007`) fields, 
+as do all software built in top of ITK ([Slicer](https://www.slicer.org/), [ANTs](https://github.com/antsx/ants), etc).
+ITK stores the coordinates or displacements in the **LPS** model space (x=right-to-left, y=anterior-to-posterior, z=inferior-to-superior), 
+with the NIfTI's affine used to encode a mapping from the vector field voxel grid to the LPS model space.
+
+A RAS coordinate is transformed by an ITK transform via:
+
+```text
+# coordinates field
+[ x ]    [ -1  0  0 ]                      ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )
+[ y ] =  [  0 -1  0 ] x LPSCoordinatesField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] )
+[ z ]    [  0  0 +1 ]                      ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )
+  v            v                                    v            v       v
+ RAS         LPS2RAS                           RAS2VOX(Lin)     RAS    RAS2VOX(Tr)
+```
+
+[SPM](https://www.fil.ion.ucl.ac.uk/spm/) also uses NIfTI files to store its warps, although it does not set the
+corresponding vector codes, and in contrast with ITK, it saves its coordinates in terms of the **RAS** model space
+(x=left-to-right, y=posterior-to-anterior, z=inferior-to-superior).
+
+[FSL](https://fsl.fmrib.ox.ac.uk/) possesses its own NIfTI intent codes:
+
+```C
+#define NIFTI_INTENT_FSL_FNIRT_DISPLACEMENT_FIELD       2006
+#define NIFTI_INTENT_FSL_CUBIC_SPLINE_COEFFICIENTS      2007
+#define NIFTI_INTENT_FSL_DCT_COEFFICIENTS               2008
+#define NIFTI_INTENT_FSL_QUADRATIC_SPLINE_COEFFICIENTS  2009
+```
+
+FSL always stores displacements (not absolute coordinates), and these displacements are in terms of
+"scaled voxels", not in terms of an abstract 
