@@ -65,12 +65,29 @@ A RAS coordinate is transformed by an ITK transform via:
 [ y ] =  [  0 -1  0 ] x LPSCoordinatesField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] )
 [ z ]    [  0  0 +1 ]                      ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )
   v            v                                    v            v       v
- RAS         LPS2RAS                           RAS2VOX(Lin)     RAS    RAS2VOX(Tr)
+ RAS        LPS2RAS                            RAS2VOX(Lin)     RAS    RAS2VOX(Tr)
+
+# displacement field
+[ x ]   [ x ]   [ -1  0  0 ]                       ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )
+[ y ] = [ y ] + [  0 -1  0 ] x LPSDisplacementField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] )
+[ z ]   [ z ]   [  0  0 +1 ]                       ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )
+  v       v           v                                     v            v       v
+ RAS     RAS       LPS2RAS                             RAS2VOX(Lin)     RAS    RAS2VOX(Tr)
 ```
 
 [SPM](https://www.fil.ion.ucl.ac.uk/spm/) also uses NIfTI files to store its warps, although it does not set the
 corresponding vector codes, and in contrast with ITK, it saves its coordinates in terms of the **RAS** model space
 (x=left-to-right, y=posterior-to-anterior, z=inferior-to-superior).
+
+A RAS coordinate is transformed by an SPM transform via:
+
+```text
+[ x ]                      ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )
+[ y ] = RASCoordinatesField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] )
+[ z ]                      ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )
+  v                                 v            v       v
+ RAS                           RAS2VOX(Lin)     RAS    RAS2VOX(Tr)
+```
 
 [FSL](https://fsl.fmrib.ox.ac.uk/) possesses its own NIfTI intent codes:
 
@@ -82,4 +99,14 @@ corresponding vector codes, and in contrast with ITK, it saves its coordinates i
 ```
 
 FSL always stores displacements (not absolute coordinates), and these displacements are in terms of
-"scaled voxels", not in terms of an abstract 
+"scaled voxels", not in terms of an abstract model space.
+
+A RAS coordinate is transformed by an FSL transform via:
+
+```text
+[ x ]    [ Axx Axy Axz ]   [ Sx  0  0 ] ^(-1)                          ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )
+[ y ] =  [ Ayx Ayy Ayz ] x [  0 Sy  0 ]       x ScaledDisplacementField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] )
+[ z ]    [ Azx Azy Azz ]   [  0  0 Sz ]                                ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )
+  v            v                 v                                              v            v       v
+ RAS       VOX2RAS(Lin)    Inverse Scale                                   RAS2VOX(Lin)     RAS    RAS2VOX(Tr)
+```
