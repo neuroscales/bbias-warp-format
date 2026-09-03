@@ -196,3 +196,12 @@ The coordinates or displacements pointed to by `"path"` are full-fledged multisc
   }
 }
 ```
+
+Multiple (and a least one) `coordinateSystems` can be defined in the same dataset.
+The **first** system in the list is the "intrinsic" systems, which is advised to be a scaled voxel space
+(and eventually translated -- but only to account for shifts across levels). The **last** system in the list
+is the default model space (e.g. used for visualisation by neuroglancer). Together with all `coordinateTransformations`
+(at the within-dataset level, and the across-datasets level), they define a transformation from the coordinates or displacements 
+field voxel space to the model space. This transformation **must be invertible**.
+
+
