@@ -1,4 +1,4 @@
-# connects-warp-format
+# BBIAS Warp Format
 
 * Status of this document: alpha
 * Editor: Yael Balbastre <y.balbastre at ucl.ac.uk>
