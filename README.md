@@ -104,11 +104,11 @@ FSL always stores displacements (not absolute coordinates), and these displaceme
 A RAS coordinate is transformed by an FSL transform via:
 
 ```text
-[ x ]   [ Axx Axy Axz ]   [ Sx  0  0 ] ^(-1)                          ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )   [ Tx ]
-[ y ] = [ Ayx Ayy Ayz ] x [  0 Sy  0 ]       x ScaledDisplacementField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] ) + [ Ty ]
-[ z ]   [ Azx Azy Azz ]   [  0  0 Sz ]                                ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )   [ Tz ]
-  v           v                 v                                              v            v       v          v
- RAS      VOX2RAS(Lin)    Inverse Scale                                   RAS2VOX(Lin)     RAS  RAS2VOX(Tr)  VOX2RAS(Tr)
+[ x ]   [ x ]   [ Axx Axy Axz ]   [ Sx  0  0 ] ^(-1)                          ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )   [ Tx ]
+[ y ] = [ y ] + [ Ayx Ayy Ayz ] x [  0 Sy  0 ]       x ScaledDisplacementField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] ) + [ Ty ]
+[ z ]   [ z ]   [ Azx Azy Azz ]   [  0  0 Sz ]                                ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )   [ Tz ]
+  v       v            v                v                                              v            v       v          v
+ RAS     RAS      VOX2RAS(Lin)    Inverse Scale                                   RAS2VOX(Lin)     RAS  RAS2VOX(Tr)  VOX2RAS(Tr)
 ```
 
 ### OME-NGFF v0.6
@@ -198,10 +198,50 @@ The coordinates or displacements pointed to by `"path"` are full-fledged multisc
 ```
 
 Multiple (and a least one) `coordinateSystems` can be defined in the same dataset.
-The **first** system in the list is the "intrinsic" systems, which is advised to be a scaled voxel space
-(and eventually translated -- but only to account for shifts across levels). The **last** system in the list
+The **first** system in the list is the "intrinsic" system, which is advised to be a scaled voxel space
+(eventually translated -- but only to account for shifts across resolution levels). The **last** system in the list
 is the default model space (e.g. used for visualisation by neuroglancer). Together with all `coordinateTransformations`
-(at the within-dataset level, and the across-datasets level), they define a transformation from the coordinates or displacements 
-field voxel space to the model space. This transformation **must be invertible**.
+(at the within-dataset level, and the across-datasets level), they define a transformation from the 
+field's voxel space to the model space. This transformation **must be invertible**.
 
+Note the the fact that the model space is named (and interpreted as) "ras+" is a choice we've made here, not a requirement 
+from the specification. Assuming that the the model space is indeed RAS, and that the implied "voxel2tas" transformation is affine, 
+an input RAS coordinate is transformed by an OME transform via:
 
+```text
+# displacement
+
+[ z ]   [ z ]                    ( [ Azz Azy Azx ]   [ z ]   [ Tz ] )
+[ y ] = [ y ] + DisplacementField( [ Ayz Ayy Ayx ] x [ y ] + [ Ty ] )
+[ x ]   [ x ]                    ( [ Axz Axy Axx ]   [ x ]   [ Tx ] )
+  v       v                               v            v       v       
+ RAS     RAS                         RAS2VOX(Lin)     RAS  RAS2VOX(Tr)
+
+# coordinates
+
+[ z ]                   ( [ Azz Azy Azx ]   [ z ]   [ Tz ] )
+[ y ] = CoordinatesField( [ Ayz Ayy Ayx ] x [ y ] + [ Ty ] )
+[ x ]                   ( [ Axz Axy Axx ]   [ x ]   [ Tx ] )
+  v                              v            v       v       
+ RAS                        RAS2VOX(Lin)     RAS  RAS2VOX(Tr)
+```
+
+> [!WARNING]
+> Array dimensions in an OME-NGFF dataset **must** be ordered ([t], [c], [z], y, x).
+> Axes within a coordinates system must also have this order. In other words, dimensions
+> are transposed compared to conventions used in NIfTI and other neuroimaging tools.
+> This means that the components of the field are also ordered as {z, y, x} (the first channel
+> of the displacement field contains the displacement along the z axis).
+>
+> We could either decide that (R, A, S) == (z, y, x) so that the input and output coordinates
+> in the equation above remain "RAS", or keep (R, A, S) == (x, y, z) and learn to reverse
+> our RAS vectors when computing the transformations. I lean towards the second solution.
+
+> [!NOTE]
+> Although we have supposed here that the "voxel to model" transformation is affine, nothing mandates
+> it in the OME-NGFF spec. The list of coordinates transformation in the displacement field's metadata could very
+> well contain a (invertible) displacement field as well. The more general transformation equation becomes
+> 
+> ```
+> output_model_coord = CoordinatesField( inv(voxel_to_model)(input_model_coord) )
+> ```
