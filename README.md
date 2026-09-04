@@ -67,18 +67,18 @@ A RAS coordinate is transformed by an ITK transform via:
 
 ```text
 # coordinates field
-[ x ]    [ -1  0  0 ]                      ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )
-[ y ] =  [  0 -1  0 ] x LPSCoordinatesField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] )
-[ z ]    [  0  0 +1 ]                      ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )
-  v            v                                    v            v       v
- RAS        LPS2RAS                            RAS2VOX(Lin)     RAS    RAS2VOX(Tr)
+[ x' ]    [ -1  0  0 ]                      ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )
+[ y' ] =  [  0 -1  0 ] x LPSCoordinatesField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] )
+[ z' ]    [  0  0 +1 ]                      ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )
+  v             v                                    v            v       v
+ RAS         LPS2RAS                            RAS2VOX(Lin)     RAS    RAS2VOX(Tr)
 
 # displacement field
-[ x ]   [ x ]   [ -1  0  0 ]                       ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )
-[ y ] = [ y ] + [  0 -1  0 ] x LPSDisplacementField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] )
-[ z ]   [ z ]   [  0  0 +1 ]                       ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )
-  v       v           v                                     v            v       v
- RAS     RAS       LPS2RAS                             RAS2VOX(Lin)     RAS    RAS2VOX(Tr)
+[ x' ]   [ x ]   [ -1  0  0 ]                       ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )
+[ y' ] = [ y ] + [  0 -1  0 ] x LPSDisplacementField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] )
+[ z' ]   [ z ]   [  0  0 +1 ]                       ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )
+  v        v           v                                     v            v       v
+ RAS      RAS       LPS2RAS                             RAS2VOX(Lin)     RAS    RAS2VOX(Tr)
 ```
 
 [SPM](https://www.fil.ion.ucl.ac.uk/spm/) also uses NIfTI files to store its warps, although it does not set the
@@ -88,11 +88,11 @@ corresponding vector codes, and in contrast with ITK, it saves its coordinates i
 A RAS coordinate is transformed by an SPM transform via:
 
 ```text
-[ x ]                      ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )
-[ y ] = RASCoordinatesField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] )
-[ z ]                      ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )
-  v                                 v            v       v
- RAS                           RAS2VOX(Lin)     RAS    RAS2VOX(Tr)
+[ x' ]                      ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )
+[ y' ] = RASCoordinatesField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] )
+[ z' ]                      ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )
+  v                                  v            v       v
+ RAS                            RAS2VOX(Lin)     RAS    RAS2VOX(Tr)
 ```
 
 [FSL](https://fsl.fmrib.ox.ac.uk/) possesses its own NIfTI intent codes:
@@ -110,11 +110,11 @@ FSL always stores displacements (not absolute coordinates), and these displaceme
 A RAS coordinate is transformed by an FSL transform via:
 
 ```text
-[ x ]   [ x ]   [ Axx Axy Axz ]   [ Sx  0  0 ] ^(-1)                          ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )   [ Tx ]
-[ y ] = [ y ] + [ Ayx Ayy Ayz ] x [  0 Sy  0 ]       x ScaledDisplacementField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] ) + [ Ty ]
-[ z ]   [ z ]   [ Azx Azy Azz ]   [  0  0 Sz ]                                ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )   [ Tz ]
-  v       v            v                v                                              v            v       v          v
- RAS     RAS      VOX2RAS(Lin)    Inverse Scale                                   RAS2VOX(Lin)     RAS  RAS2VOX(Tr)  VOX2RAS(Tr)
+[ x' ]   [ x ]   [ Axx Axy Axz ]   [ Sx  0  0 ] ^(-1)                          ( [ Axx Axy Axz ]   [ x ]   [ Tx ] )   [ Tx ]
+[ y' ] = [ y ] + [ Ayx Ayy Ayz ] x [  0 Sy  0 ]       x ScaledDisplacementField( [ Ayx Ayy Ayz ] x [ y ] + [ Ty ] ) + [ Ty ]
+[ z' ]   [ z ]   [ Azx Azy Azz ]   [  0  0 Sz ]                                ( [ Azx Azy Azz ]   [ z ]   [ Tz ] )   [ Tz ]
+  v        v            v                v                                              v            v       v          v
+ RAS      RAS      VOX2RAS(Lin)    Inverse Scale                                   RAS2VOX(Lin)     RAS  RAS2VOX(Tr)  VOX2RAS(Tr)
 ```
 
 ### OME-NGFF v0.6
@@ -220,19 +220,19 @@ an input RAS coordinate is transformed by an OME transform via:
 ```text
 # displacement
 
-[ z ]   [ z ]                    ( [ Azz Azy Azx ]   [ z ]   [ Tz ] )
-[ y ] = [ y ] + DisplacementField( [ Ayz Ayy Ayx ] x [ y ] + [ Ty ] )
-[ x ]   [ x ]                    ( [ Axz Axy Axx ]   [ x ]   [ Tx ] )
-  v       v                               v            v       v       
- RAS     RAS                         RAS2VOX(Lin)     RAS  RAS2VOX(Tr)
+[ z' ]   [ z ]                    ( [ Azz Azy Azx ]   [ z ]   [ Tz ] )
+[ y' ] = [ y ] + DisplacementField( [ Ayz Ayy Ayx ] x [ y ] + [ Ty ] )
+[ x' ]   [ x ]                    ( [ Axz Axy Axx ]   [ x ]   [ Tx ] )
+  v        v                               v            v       v       
+ RAS      RAS                         RAS2VOX(Lin)     RAS  RAS2VOX(Tr)
 
 # coordinates
 
-[ z ]                   ( [ Azz Azy Azx ]   [ z ]   [ Tz ] )
-[ y ] = CoordinatesField( [ Ayz Ayy Ayx ] x [ y ] + [ Ty ] )
-[ x ]                   ( [ Axz Axy Axx ]   [ x ]   [ Tx ] )
-  v                              v            v       v       
- RAS                        RAS2VOX(Lin)     RAS  RAS2VOX(Tr)
+[ z' ]                   ( [ Azz Azy Azx ]   [ z ]   [ Tz ] )
+[ y' ] = CoordinatesField( [ Ayz Ayy Ayx ] x [ y ] + [ Ty ] )
+[ x' ]                   ( [ Axz Axy Axx ]   [ x ]   [ Tx ] )
+  v                               v            v       v       
+ RAS                         RAS2VOX(Lin)     RAS  RAS2VOX(Tr)
 ```
 
 > [!WARNING]
