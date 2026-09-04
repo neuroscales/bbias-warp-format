@@ -12,8 +12,9 @@ A scalable format for large displacement or coordinates fields ("warps").
 
 0. [References](#0-references)
 1. [Introduction](#1-introduction)
-2. [Format Specification](#2-format-specification)
-3. [Limitations](#3-limitations)
+2. [Existing Warp Formats](#2-existing-warp-formats)
+3. [Format Specification](#3-format-specification)
+4. [Limitations](#4-limitations)
 
 ## 0. References
 
@@ -254,7 +255,7 @@ an input RAS coordinate is transformed by an OME transform via:
 > output_model_coord = CoordinatesField( inv(voxel_to_model)(input_model_coord) )
 > ```
 
-## 2. Format Specification
+## 3. Format Specification
 
 This document proposes to leverage OME-NGFF displacements and coordinates fields for the CONNECTS common warp format, with
 the additional requirement that the output model space is (R, A, S) == (x, y, z). It **recommends** that the OME-NGFF 
@@ -459,7 +460,7 @@ Note that because displacements and coordinates are defined in terms of model sp
 downsampled levels can be computed using simple moving-average or gaussian-pyramid downsampling. The
 downsampled displacements do not need to be re-scaled.
 
-## 3. Limitations
+## 4. Limitations
 
 - Boundary conditions when interpolating a warp are not specified in the specification. This matters particularly for cubic splines.
 - Some of the interpolation orders used by FSL are not available in OME-NGFF (quadratic spline, DCT), which means that fields
